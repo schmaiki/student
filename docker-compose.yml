@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  db:
+    image: mariadb:latest
+    container_name: db
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_USER=maik
+      - MYSQL_PASSWORD=maik
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+        - './db_data:/var/lib/mysql'
+    networks:
+      - symfony
+
+  app:
+    build: .
+    command: ["dockerize", "-wait", "tcp://db:3306", "-timeout", "60s", "apache2-foreground"]
+    ports:
+      - "8080:80"
+    volumes:
+      - ".:/var/www/html"
+    depends_on:
+      - db
+    networks:
+      - symfony
+
+networks:
+   symfony:
